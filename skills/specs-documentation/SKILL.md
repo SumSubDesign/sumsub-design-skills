@@ -1,13 +1,13 @@
 ---
 name: specs-docs
-description: "Generate Specs-style component documentation in Figma — anatomy exhibits with numbered markers, Do/Dont cards, variant grids. Use when creating or updating component documentation pages."
+description: "Generate Specs-style component documentation in Figma — anatomy exhibits with numbered markers, Do/Dont cards. Uses the new WebSDK visual style (1076px, rounded sections, custom Header)."
 argument-hint: "[component-name]"
 ---
 
 # Figma Specs Documentation — Component Anatomy Generator
 
-> Skill for creating component documentation pages that match the Specs plugin output.
-> Based on reverse-engineering the Specs plugin (studied 2026-04-08 on Button component).
+> Skill for creating component documentation pages.
+> Based on reverse-engineering the Specs plugin + new WebSDK visual style (verified 2026-04-08 on Button component).
 
 ---
 
@@ -24,23 +24,32 @@ Specs (root)
 
   └── Specification
         layoutMode: VERTICAL
-        itemSpacing: 50
+        itemSpacing: 16
         fills: [] (transparent)
         padding: 0
-        width: 1456 (FIXED)
+        width: 1076 (FIXED)
         primaryAxisSizingMode: AUTO
 
-        ├── Documentation / Page Header (INSTANCE)
-        │     componentKey: "d7d427652fe400efad08bfa0a83682baaee9090c"
-        │     layoutSizingHorizontal: FILL
-        │     layoutSizingVertical: HUG
-        │
-        ├── Reference component (FRAME, HIDDEN)
-        │     100x100, fills: [], visible: false
-        │     Contains: default variant instance of the component
+        ├── Header (INSTANCE, cloned from WebSDK)
+        │     key: "193b44314fe5c23934fb8e8b842f8dc7a2e66188"
+        │     NOT in published libraries — must clone from existing instance
+        │     cornerRadius: 40
+        │     Properties: Title#2318:0, Description#2318:1, Link#2318:2, Show description#2318:3
+        │     Title and Description MUST be unique per component (write them yourself)
         │
         └── Anatomy sections × N
+            (NO Reference component, NO Variant grid)
 ```
+
+### Header Component
+
+- **Source:** Clone from WebSDK specs template (node `572:53994` in test file `INX5ci5n7v9dA2L4EJ8zDR`)
+- **Properties:**
+  - `Title#2318:0` — component name (e.g. "Button")
+  - `Description#2318:1` — unique description of the component
+  - `Link#2318:2` — "Storybook →" with hyperlink
+  - `Show description#2318:3` — true
+- **Style:** cornerRadius 40, NONE layout, Sumsub logo, title Inter Bold 64, description Manrope Medium 16, link Manrope Medium 16 blue (#143cff)
 
 ---
 
@@ -49,10 +58,11 @@ Specs (root)
 ```
 Anatomy (FRAME)
   layoutMode: VERTICAL
-  itemSpacing: 64         ← between title, exhibit, grid
+  itemSpacing: 64         ← between title, exhibit, content
   padding: 64 all sides
   fills: #ffffff (white)
-  width: 1456 (FIXED via counterAxisSizingMode)
+  cornerRadius: 40
+  width: 1076 (FILL parent)
   primaryAxisSizingMode: AUTO
 ```
 
@@ -110,15 +120,18 @@ Anatomy item (FRAME)
   │
   └── Attributes (FRAME, VERTICAL, spacing 4)
       └── Attribute row (FRAME, HORIZONTAL, spacing 4)
-          ├── Name — Inter Regular 12, #000000 (e.g. "Height :")
+          ├── Name — Inter Regular 12, #000000 (e.g. "Depends on :")
           └── ]-[ (FRAME, HORIZONTAL, pad 4/0/4/0)
-              └── Value — Inter Regular 12, #000000 (e.g. "16")
+              └── Value — Inter Regular 12, #000000 (e.g. "*Counter*")
 ```
 
 **Anatomy item content rules:**
 - Each structural child of the component gets an item
-- Wrapper frames (e.g. "Left Icon Wrapper") AND their child instances (e.g. "normal/search") get separate items
-- Attributes show: dimensions (Height/Width), dependencies (Depends on: componentName), text styles, border radius, etc.
+- Wrapper frames AND their child instances get separate items
+- **Attributes — NO dimensions** (no Height/Width). Use instead:
+  - `Depends on: componentName` — for wrappers and nested instances
+  - `Text style: medium/body-m` — for text nodes
+  - `Type: X, State: Y` — for component variants
 
 ### Artwork
 
@@ -322,25 +335,23 @@ Do card (FRAME)
   itemSpacing: 0
   padding: 24 / 24 / 8 / 24  (top/right/bottom/left)
   cornerRadius: 24
+  clipsContent: false
   fills: []  (transparent — no background!)
   layoutSizingVertical: HUG
 
   ├── RatioImage (FRAME)
   │     layoutMode: NONE (absolute positioning for contents!)
   │     cornerRadius: 16
+  │     clipsContent: true
   │     fills: #ffffff (white)
-  │     strokes: #25b793 (green), strokeWeight: 2
+  │     strokes: #25b793 (green for Do) or #f5222d (red for Don't), strokeWeight: 2
   │     layoutSizingHorizontal: FILL
   │     height: FIXED (353px standard, varies)
   │
-  │     ├── ⚙️Tag (FRAME, HORIZONTAL)
-  │     │     padding: 4/12/4/12
-  │     │     cornerRadius: 12
-  │     │     fills: #25b793 (green for "Do") or #c54600 (orange for "Don't")
-  │     │     position: x=20, y=20
-  │     │     └── _label — Geist Bold 18, #ffffff ("Do" or "Don't")
+  │     ├── Tag — see Tag Rules below
   │     │
   │     └── Component instances (absolutely positioned in center area)
+  │         ALWAYS place real instances — never leave RatioImage empty
   │
   └── Text (FRAME, VERTICAL)
         padding: 12/0/12/0
@@ -348,9 +359,31 @@ Do card (FRAME)
                      textAutoResize: HEIGHT
 ```
 
+### Tag Rules
+
+**Do card tag** — manual ⚙️Tag frame:
+```
+⚙️Tag (FRAME, HORIZONTAL)
+  position: x=20, y=20
+  padding: 4/12/4/12
+  cornerRadius: 12
+  itemSpacing: 16
+  fills: #25b793 (green)
+  └── _label — Geist Bold 18, #ffffff, lineHeight: 24px (explicit PIXELS)
+              text: "Do"
+```
+
+**Don't card tag** — use INSTANCE of `Do and dont tag` component:
+```
+Component key: "0ca46296a294a5e9d8c634941e7ab27a2f81fd30"
+Property: "Property 1" = "Dont"
+Position: x=19, y=21
+Don't card stroke color: #f5222d (RED, not #c54600 orange)
+```
+
 ### Do Card Sizes
 - **Small (400px):** Single example, standalone
-- **Full-width (1328px = section width - 2*64 padding):** Multiple examples side by side, `layoutSizingHorizontal: FILL`
+- **Full-width (948px = 1076 - 2×64 padding):** Multiple examples side by side, `layoutSizingHorizontal: FILL`
 
 ### Do Card Rows
 When multiple small Do cards appear in a row:
@@ -362,9 +395,9 @@ Row frame (FRAME)
   primaryAxisSizingMode: AUTO (HUG)
   counterAxisSizingMode: AUTO (HUG)
 
-  ├── Do card (400px)
-  ├── Do card (400px)
-  └── Do card (400px)
+  ├── Do card (400px or smaller to fit)
+  ├── Do card
+  └── Do card
 ```
 
 ---
@@ -393,17 +426,7 @@ Description (FRAME)
 ## Section Types
 
 ### 1. Anatomy Section (with Exhibit)
-Title + Exhibit (Content legend + Artwork with markers) + optional Variant grid
-
-**Variant grid:**
-```
-Grid frame (FRAME)
-  layoutMode: NONE (manual positioning!)
-  width: 1328, height: varies
-  fills: []
-  Contains: component instances at specific x,y positions
-  Grid spacing: ~148px columns, ~39px rows (32 for small variants)
-```
+Title + Exhibit (Content legend + Artwork with markers)
 
 ### 2. States Section (itemSpacing: 40 instead of 64)
 Title + Do cards + Description blocks
@@ -422,10 +445,12 @@ Used for: Left-aligned buttons, Icons, Add button
 | Marker dot & line | Orange | `#c54600` |
 | Marker number text | White | `#ffffff` |
 | Section background | White | `#ffffff` |
+| Section cornerRadius | — | `40` |
 | Artwork background | Light grey | `#f2f2f2` |
-| Do card RatioImage stroke | Green | `#25b793` |
+| Do card RatioImage stroke (Do) | Green | `#25b793` |
+| Do card RatioImage stroke (Don't) | Red | `#f5222d` |
 | Do card ⚙️Tag (Do) | Green | `#25b793` |
-| Do card ⚙️Tag (Don't) | Orange | `#c54600` |
+| Don't card tag | Red | `#f5222d` (via component instance) |
 | Title text | Black | `#000000` |
 | Description title | Dark grey | `#212736` |
 | Description body | Dark grey | `#212736` |
@@ -450,30 +475,50 @@ Used for: Left-aligned buttons, Icons, Add button
 
 ---
 
+## Component Keys Used in Specs
+
+| Component | Key |
+|---|---|
+| Do and dont tag | `0ca46296a294a5e9d8c634941e7ab27a2f81fd30` |
+| Cursor (Pointer variant) | `9067422ce117ceb72175cff1e4f97202a67776e5` |
+| normal/archive icon | `b08481e2839891338af120b7838825377c1be2f3` |
+| normal/image icon | `38ee88902fdb8a8ca37075e5ba63653d5c5ac3bb` |
+
+---
+
 ## Workflow: Creating Documentation for a Component
 
-1. **Import the component set** via `importComponentSetByKeyAsync`
-2. **Create the maximum variant** — enable all boolean props, use largest size
-3. **Analyze the component tree** — walk visible children to find structural parts
-4. **Build the anatomy items list** — name, attributes (dimensions, dependencies), marker direction
-5. **Calculate artwork size** — component size + margins for markers (48px above, 60px below)
-6. **Place the component** centered in artwork
-7. **Place markers** using the positioning algorithm above
-8. **Build Content legend** with anatomy items matching marker numbers
-9. **Build variant grid** if needed — NONE layout with manually positioned instances
-10. **Add Do cards** for usage examples
+1. **Clone the Header** from WebSDK template (node `572:53994`) — set unique Title, Description, and Storybook link
+2. **Import the component set** via `importComponentSetByKeyAsync`
+3. **Create the maximum variant** — enable all boolean props, use largest size
+4. **Analyze the component tree** — walk visible children to find structural parts
+5. **Build the anatomy items list** — name, attributes (Depends on / Text style / Type+State), marker direction
+6. **Calculate artwork size** — component size + margins for markers (48px above, 60px below)
+7. **Place the component** centered in artwork
+8. **Place markers** using the positioning algorithm above
+9. **Build Content legend** with anatomy items matching marker numbers
+10. **Add Do cards** for usage examples — always with real component instances inside
 11. **Add Description blocks** for explanations
+12. **Verify via Plugin API** — check all widths, cornerRadius, content before delivering
 
 ---
 
 ## Key Gotchas
 
 - **Artwork is NONE layout** — all children are absolutely positioned
-- **Variant grid is NONE layout** — instances manually placed on a grid
-- **Do card has NO fills** — transparent background, only RatioImage has white fill + green stroke
+- **Do card has NO fills** — transparent background, only RatioImage has white fill + colored stroke
+- **Do card clipsContent = false** — content can extend beyond card bounds
 - **RatioImage is NONE layout** — tag and component instances are absolutely positioned inside
-- **⚙️Tag cornerRadius = 12** (not 100)
+- **⚙️Tag: cornerRadius 12, itemSpacing 16, label lineHeight 24px explicit**
+- **Don't tag** — INSTANCE of `Do and dont tag` component (not manual frame), stroke #f5222d (red)
+- **Don't stroke is RED (#f5222d)**, not orange (#c54600)
 - **Markers above vs below** — direct children above, grandchildren (nested instances) below
 - **Maximum variant** — ALL boolean properties must be `true` for the anatomy artwork
 - **Section spacing varies**: anatomy sections use 64, states section uses 40
 - **Always `appendChild` before setting `layoutSizingHorizontal = "FILL"`**
+- **No variant grids** — variants are visible in the component itself
+- **No Reference component** — hidden frame with default variant is not needed
+- **No dimensions in legend** — use "Depends on", "Text style", "Type/State" instead
+- **Always verify all details via Plugin API before delivering to user**
+- **Header key not in published libraries** — must clone from existing instance, cannot import
+- **Content width** = 1076 - 128 (padding) = **948px** for full-width Do cards
