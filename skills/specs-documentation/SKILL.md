@@ -1,13 +1,13 @@
 ---
 name: specs-docs
-description: "Generate Specs-style component documentation in Figma — anatomy exhibits with numbered markers, Do/Dont cards. Uses the new WebSDK visual style (1076px, rounded sections, custom Header)."
+description: "Generate Specs-style component documentation in Figma — anatomy exhibits with numbered markers, Do/Dont cards. 1076px width, rounded sections, branded Header."
 argument-hint: "[component-name]"
 ---
 
 # Figma Specs Documentation — Component Anatomy Generator
 
 > Skill for creating component documentation pages.
-> Based on reverse-engineering the Specs plugin + new WebSDK visual style (verified 2026-04-08 on Button component).
+> Verified on Button component (2026-04-08).
 
 ---
 
@@ -30,26 +30,58 @@ Specs (root)
         width: 1076 (FIXED)
         primaryAxisSizingMode: AUTO
 
-        ├── Header (INSTANCE, cloned from WebSDK)
-        │     key: "193b44314fe5c23934fb8e8b842f8dc7a2e66188"
-        │     NOT in published libraries — must clone from existing instance
-        │     cornerRadius: 40
-        │     Properties: Title#2318:0, Description#2318:1, Link#2318:2, Show description#2318:3
-        │     Title and Description MUST be unique per component (write them yourself)
+        ├── Header (FRAME)        ← branded header block
         │
         └── Anatomy sections × N
             (NO Reference component, NO Variant grid)
 ```
 
-### Header Component
+---
 
-- **Source:** Clone from WebSDK specs template (node `572:53994` in test file `INX5ci5n7v9dA2L4EJ8zDR`)
-- **Properties:**
-  - `Title#2318:0` — component name (e.g. "Button")
-  - `Description#2318:1` — unique description of the component
-  - `Link#2318:2` — "Storybook →" with hyperlink
-  - `Show description#2318:3` — true
-- **Style:** cornerRadius 40, NONE layout, Sumsub logo, title Inter Bold 64, description Manrope Medium 16, link Manrope Medium 16 blue (#143cff)
+## Header
+
+The first block of every spec. Contains the Sumsub logo, component title, description, and a link to Storybook.
+
+```
+Header (FRAME)
+  layoutMode: NONE
+  width: 1076 (FILL parent)
+  height: ~380 (depends on content)
+  cornerRadius: 40
+  fills: linear gradient (branded, dark background)
+  clipsContent: true
+
+  ├── image (FRAME)              ← decorative background pattern, right side
+  │     w: 532, h: 380
+  │
+  ├── glass (RECTANGLE)          ← semi-transparent overlay, full size
+  │     w: 1076, h: 380
+  │
+  ├── Company Logo (INSTANCE)    ← Sumsub logo, top-left area
+  │     w: 55, h: 40
+  │     position: x≈52, y≈52
+  │
+  └── Title (FRAME, VERTICAL)    ← text content, bottom-left area
+        w: ~780, position: x≈52, y≈bottom
+        itemSpacing: 8
+
+        ├── Component name — Inter Bold 64, #ffffff
+        │     Text: component name (e.g. "Button")
+        │
+        ├── Definition — Manrope Medium 16, #ffffff (opacity ~0.7)
+        │     Text: unique description of the component
+        │     (Write it yourself — must be unique per component)
+        │
+        └── Link — Manrope Medium 16, #143cff (blue)
+              Text: "Storybook →"
+              hyperlink: URL to Storybook page for this component
+```
+
+### Header Rules
+- **Title and Description MUST be unique** for every component — write them yourself
+- **Link** always points to the component's Storybook page with a hyperlink on the TEXT node
+- **cornerRadius: 40** — matches all other sections
+- If a Header instance already exists in the file, **clone it** and update texts. If not, build the frame manually following the structure above
 
 ---
 
@@ -488,7 +520,7 @@ Used for: Left-aligned buttons, Icons, Add button
 
 ## Workflow: Creating Documentation for a Component
 
-1. **Clone the Header** from WebSDK template (node `572:53994`) — set unique Title, Description, and Storybook link
+1. **Create the Header** — clone an existing one or build manually. Set unique Title, Description, and Storybook link
 2. **Import the component set** via `importComponentSetByKeyAsync`
 3. **Create the maximum variant** — enable all boolean props, use largest size
 4. **Analyze the component tree** — walk visible children to find structural parts
@@ -520,5 +552,5 @@ Used for: Left-aligned buttons, Icons, Add button
 - **No Reference component** — hidden frame with default variant is not needed
 - **No dimensions in legend** — use "Depends on", "Text style", "Type/State" instead
 - **Always verify all details via Plugin API before delivering to user**
-- **Header key not in published libraries** — must clone from existing instance, cannot import
+- **Header** — clone from an existing spec if available, or build manually per the structure above
 - **Content width** = 1076 - 128 (padding) = **948px** for full-width Do cards
