@@ -1,51 +1,156 @@
 # Sumsub Design Skills
 
-Claude Code plugin with Figma skills for the Sumsub Product Design team.
+Claude Code plugin for the Sumsub Product Design team. Adds 4 slash commands that automate routine Figma tasks: generating component documentation, adding screen annotations, building table pages, and auditing designs for system compliance.
 
-## Skills
+All skills work through the [Figma MCP server](https://github.com/niceandfun/figma-mcp) and use the Sumsub Dashboard design system (Base components, Organisms, semantic variables).
 
-| Skill | Command | Description |
-|---|---|---|
-| **Specs Docs** | `/specs-docs [component]` | Generate Specs-style component anatomy documentation in Figma |
-| **Screen Annotations** | `/screen-annotations` | Add Scenarios annotation blocks above mockup screens |
-| **Table Page** | `/table-page` | Build full dashboard table pages with configured cells |
-| **Design Review** | `/design-review` | Audit Figma mockups for design system compliance |
+## Available Skills
+
+### `/specs-docs` — Component Anatomy Documentation
+
+Generates Specs-style documentation pages for any component from the design system. Creates anatomy exhibits with numbered markers pointing to structural parts, a legend with attributes, variant grids, and Do/Don't usage cards.
+
+**Example:**
+```
+/specs-docs Button
+```
+
+**What it produces:**
+- Anatomy exhibit with the "maximum variant" (all boolean props enabled, largest size)
+- Numbered markers aligned to component children
+- Legend with dimensions, dependencies, and text styles
+- Variant grid showing all sizes and states
+- Do/Don't cards for usage guidelines
+
+---
+
+### `/screen-annotations` — Scenario Annotations
+
+Adds standardized Scenarios annotation blocks above each screen in a Figma flow. Describes what the user sees and does on each screen, helping reviewers and developers understand the flow.
+
+**Example:**
+```
+/screen-annotations
+```
+
+**What it does:**
+- Analyzes screens on the current page
+- Creates annotation instances from the shared component set
+- Numbers them in X.Y format (1.1, 1.2, 2.1...)
+- Writes concise English descriptions focused on user actions
+- Positions annotations 100px above each screen
+
+---
+
+### `/table-page` — Dashboard Table Page Builder
+
+Builds a complete dashboard list page: Sidebar + Header + Title row + Tabs + Top Toolbar + Table with configured cells (Entity, ID, Status, Date columns).
+
+**Example:**
+```
+/table-page
+```
+
+**What it produces:**
+- 1440x900 frame with Sidebar (257px) and Header (64px)
+- Content area with proper padding (24/32)
+- Top Toolbar component (not manual build)
+- Table Starter with 10 data rows and configured cell types
+- All variables bound (no hardcoded hex values)
+
+---
+
+### `/design-review` — Design System Audit
+
+Audits Figma mockups for compliance with the Sumsub Dashboard design system. Walks the node tree via Plugin API and reports issues.
+
+**Example:**
+```
+/design-review
+```
+
+**What it checks:**
+- Unbound fills, strokes, spacing, and border radius (hardcoded values)
+- `base/*` tokens used instead of `semantic/*`
+- Wrong font family (Inter instead of Geist)
+- Components from Redesign library instead of Base
+- Layout pattern violations (title outside Header, missing Toolbar)
+
+**What it skips:**
+- Cover/Overview frames (decorative)
+- Task context instances (internal tooling)
+- Children inside component instances (managed by component)
+
+---
 
 ## Installation
 
-```bash
-claude /plugin add /path/to/sumsub-design-skills
-```
-
-Or from GitHub (after pushing):
+### From GitHub
 
 ```bash
-claude /plugin add https://github.com/niceandfun/sumsub-design-skills
+/plugin add https://github.com/niceandfun/sumsub-design-skills
 ```
 
-## Requirements
+### From local path
 
-- [Claude Code](https://claude.com/claude-code) with Figma MCP server configured
-- Access to Sumsub Figma libraries (Base components, Organisms)
-
-## Reference Docs
-
-The `reference/` directory contains design system documentation used by the skills:
-
-- **design-system.md** — Component inventory, variables, tokens, text styles
-- **color-usage.md** — Semantic color variable usage guide
-- **layout-patterns.md** — Standard page layout patterns (1440x900)
-- **BLOCKS.md** — Figma Blocks system overview
-
-## For the Team
-
-After installation, use skills as slash commands in Claude Code:
-
-```
-> /specs-docs Button
-> /screen-annotations
-> /table-page
-> /design-review
+```bash
+/plugin add /path/to/sumsub-design-skills
 ```
 
-Each skill includes complete Figma Plugin API code and design system rules.
+> Run the command inside Claude Code (not in a regular terminal).
+
+## Prerequisites
+
+1. **Claude Code** installed and running
+2. **Figma MCP server** configured in Claude Code settings
+3. **Access to Sumsub Figma libraries:**
+   - Base components [Dashboard UI Kit]
+   - Organisms [Dashboard UI Kit]
+   - Assets (icons, flags)
+
+## Project Structure
+
+```
+sumsub-design-skills/
+├── plugin.json                         # Plugin manifest
+├── skills/
+│   ├── specs-documentation/SKILL.md    # /specs-docs
+│   ├── screen-annotations/SKILL.md     # /screen-annotations
+│   ├── table-page-builder/SKILL.md     # /table-page
+│   └── design-review/SKILL.md         # /design-review
+└── reference/
+    ├── design-system.md                # Components, variables, tokens (100+ components, 570 variables)
+    ├── color-usage.md                  # Semantic color usage guide
+    ├── layout-patterns.md              # Page layout patterns (1440x900)
+    └── BLOCKS.md                       # Figma Blocks system
+```
+
+### Skills vs Reference
+
+- **`skills/`** — actionable instructions. Each SKILL.md contains a complete workflow: when to use, parameters, Figma Plugin API code, gotchas, and checklists.
+- **`reference/`** — design system data. Component keys, variable keys, hex values, layout dimensions. Skills read from these docs when they need specific keys or tokens.
+
+## How Skills Work
+
+Each skill is a SKILL.md file with YAML frontmatter:
+
+```yaml
+---
+name: design-review
+description: "Audit Figma mockups for design system compliance"
+---
+```
+
+When you type `/design-review` in Claude Code, it loads the SKILL.md as context and follows its instructions. The skill uses the Figma MCP server (`mcp__figma__use_figma`) to run Plugin API code directly in Figma.
+
+## Updating
+
+When the design system changes (new components, renamed tokens, new libraries):
+
+1. Update the relevant files in `reference/`
+2. Update affected SKILL.md files if workflows changed
+3. Commit and push — team members get updates on next `/plugin add`
+
+## Team
+
+Maintained by the Sumsub UX Team (14 product designers).
