@@ -15,7 +15,7 @@
 
 # Sumsub Design Skills
 
-Claude Code plugin for the Sumsub Product Design team. Adds 4 slash commands that automate routine Figma tasks: generating component documentation, adding screen annotations, building table pages, and auditing designs for system compliance.
+Claude Code plugin for the Sumsub Product Design team. Adds 4 slash commands that automate routine Figma tasks: generating component documentation, adding screen annotations, creating mockups, and auditing designs for system compliance.
 
 All skills work through the [Figma MCP server](https://github.com/niceandfun/figma-mcp) and use the Sumsub Dashboard design system (Base components, Organisms, semantic variables).
 
@@ -57,20 +57,22 @@ Adds standardized Scenarios annotation blocks above each screen in a Figma flow.
 
 ---
 
-### `/table-page` — Dashboard Table Page Builder
+### `/mockup` — Mockup Builder
 
-Builds a complete dashboard list page: Sidebar + Header + Title row + Tabs + Top Toolbar + Table with configured cells (Entity, ID, Status, Date columns).
+Creates Figma mockups for any dashboard screen. Describe what you need — a table page, detail view, form, modal, empty state — and get a pixel-perfect screen built with design system components.
 
-**Example:**
+**Examples:**
 ```
-/table-page
+/mockup applicant list with status and date columns
+/mockup settings page with form and save button
+/mockup empty state for no search results
 ```
 
 **What it produces:**
 - 1440x900 frame with Sidebar (257px) and Header (64px)
-- Content area with proper padding (24/32)
-- Top Toolbar component (not manual build)
-- Table Starter with 10 data rows and configured cell types
+- Content area with proper padding and layout
+- Real design system components (Table Starter, Top Toolbar, Modals, Drawers, etc.)
+- Configured cells, filters, tabs, and CTAs matching your description
 - All variables bound (no hardcoded hex values)
 
 ---
@@ -103,7 +105,7 @@ Audits Figma mockups for compliance with the Sumsub Dashboard design system. Wal
 ### From GitHub
 
 ```bash
-/plugin add https://github.com/niceandfun/sumsub-design-skills
+/plugin add https://github.com/SumSubDesign/sumsub-design-skills
 ```
 
 ### From local path
@@ -131,7 +133,7 @@ sumsub-design-skills/
 ├── skills/
 │   ├── specs-documentation/SKILL.md    # /specs-docs
 │   ├── screen-annotations/SKILL.md     # /screen-annotations
-│   ├── table-page-builder/SKILL.md     # /table-page
+│   ├── mockup/SKILL.md                 # /mockup
 │   └── design-review/SKILL.md         # /design-review
 └── reference/
     ├── design-system.md                # Components, variables, tokens (100+ components, 570 variables)

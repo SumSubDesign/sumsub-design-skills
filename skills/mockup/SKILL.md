@@ -1,13 +1,14 @@
 ---
-name: table-page
-description: "Create a full dashboard table page in Figma — Sidebar + Header + Top Toolbar + Table with configured cells (Entity, ID, Status, Date). Use when building list/table screens."
-argument-hint: "[page-title]"
+name: mockup
+description: "Create Figma mockups for any dashboard screen — table pages, detail views, forms, modals, empty states. Describe what you need and get a pixel-perfect screen using Sumsub design system components."
+argument-hint: "[screen description]"
 ---
 
-# Figma Skill: Table Page Builder
+# Figma Skill: Mockup Builder
 
-> Create full dashboard table pages: Sidebar + Header + Title row + Tabs + Table with configured cells.
-> Uses the Figma Blocks system (helpers.js + block JS).
+> Create dashboard mockups in Figma on any given topic.
+> Supports table pages, detail pages, forms, modals, drawers, and custom layouts.
+> Uses the Figma Blocks system (helpers.js + block JS) and Sumsub design system components.
 
 ---
 
