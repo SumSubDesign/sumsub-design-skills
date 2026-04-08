@@ -166,7 +166,8 @@ When the design system changes (new components, renamed tokens, new libraries):
 
 1. Update the relevant files in `reference/`
 2. Update affected SKILL.md files if workflows changed
-3. Commit and push — team members get updates on next `/plugin add`
+3. Bump `version` in `plugin.json` (required for cache invalidation)
+4. Commit and push — team members run `/plugin update https://github.com/SumSubDesign/sumsub-design-skills` to get updates
 
 ## Team
 
